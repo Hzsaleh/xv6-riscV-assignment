@@ -149,26 +149,28 @@ syscall(void)
   if (num > 0 && num < NELEM(syscalls) && syscalls[num]) {
 
     // Rejecting the system call if interpose function has sandboxed it.
-      if (num == SYS_open) {
-        char path[MAXPATH];
-        argstr(0, path, MAXPATH);
+      if(strncmp("-", p->interpose_allowed_path, MAXPATH)){
+        if (num == SYS_open) {
+          char path[MAXPATH];
+          argstr(0, path, MAXPATH);
 
-        // if (argstr(0, path, MAXPATH) < 0) {
-        //   p->trapframe->a0 = -1;
-        //   return;
-        // }
-        
-        // printk("p->interpose_allowed_path: %s\tpath: %s\n", p->interpose_allowed_path, path);
-        
-        int equal = !strncmp(p->interpose_allowed_path, path, MAXPATH);
+          // if (argstr(0, path, MAXPATH) < 0) {
+          //   p->trapframe->a0 = -1;
+          //   return;
+          // }
+          
+          // printk("p->interpose_allowed_path: %s\tpath: %s\n", p->interpose_allowed_path, path);
+          
+          int equal = !strncmp(p->interpose_allowed_path, path, MAXPATH);
 
-        // printk("Equal: %d\n", equal);
-        
-        if (!equal && (p->interpose_mask & (1 << num)) != 0) {
-          p->trapframe->a0 = -1;
-          return;
+          // printk("Equal: %d\n", equal);
+          
+          if (!equal && (p->interpose_mask & (1 << num)) != 0) {
+            p->trapframe->a0 = -1;
+            return;
+          }
         }
-      } else if ((p->interpose_mask & (1 << num)) != 0) {
+      } else if((p->interpose_mask & (1 << num)) != 0) {
         p->trapframe->a0 = -1;
         return;
       }
@@ -176,7 +178,7 @@ syscall(void)
     // Use num to lookup the system call function for num, call it,
     // and store its return value in p->trapframe->a0
     p->trapframe->a0 = syscalls[num]();
-  } else {
+  } else{
     printk("%d %s: unknown sys call %d\n", p->pid, p->name, num);
     p->trapframe->a0 = -1;
   }

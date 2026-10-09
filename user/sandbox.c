@@ -3,16 +3,17 @@
 
 int main(int argc, char *argv[]) {
 
+    // printf("hello there");
     interpose(atoi(argv[1]), argv[2]);
 
-    printf("\n\nExec Arguments:\t");
-    for (int i = 3; argv[i] != 0; i++) {
-        printf("%s ", argv[i]);
-    }
-    printf("\n\n");
+    // printf("\n\nExec Arguments:\t");
+    // for (int i = 3; argv[i] != 0; i++) {
+    //     printf("%s ", argv[i]);
+    // }
+    // printf("\n\n");
 
     exec(argv[3], argv + 3);    
-    printf("sandbox failed!\n");
+    printf("sandbox: exec %s failed\n", argv[3]);
 
     return -1;
 }
