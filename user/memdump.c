@@ -2,7 +2,83 @@
 #include "user/user.h"
 #include "kernel/fcntl.h"
 
-void memdump(char *fmt, char *data, int len);
+void memdump(char *fmt, char *data, int len) {
+  int fmt_index = 0;
+  int i = 0;
+  char* data_start = data;
+
+  while (i < len && fmt[fmt_index] != '\0') {
+    char c = fmt[fmt_index];
+
+    if (c == 'i') {
+
+      if ((len - i) < 4) {
+        printf("memdump: not enough data for 'i'\n");
+        return;
+      }
+
+      printf("%d\n", *((int*)(data)));
+      data += 4;
+      i += 4;
+    }
+    if (c == 'p') {
+
+      if ((len - i) < 8) {
+        printf("memdump: not enough data for 'p'\n");
+        return;
+      }
+
+      printf("%llx\n", *(unsigned long long *)data);
+      data += 8;
+      i += 8;
+    }
+    if (c == 'h') {
+
+      if ((len - i) < 2) {
+        printf("memdump: not enough data for 'h'\n");
+        return;
+      }
+
+      printf("%u\n", *(unsigned short *)data);
+      data += 2;
+      i += 2;
+    }
+    if (c == 'c') {
+
+      if ((len - i) < 1) {
+        printf("memdump: not enough data for 'c'\n");
+        return;
+      }
+
+      printf("%c\n", *data);
+      data += 1;
+      i += 1;
+    }
+    if (c == 's') {
+
+      if ((len - i) < 8) {
+        printf("memdump: not enough data for 's'\n");
+        return;
+      }
+      printf("%s\n", (char *)(*(uint64 *)(data)));      
+      data += 8;
+      i += 8;
+    }
+    if (c == 'S') {
+
+      while (i < len) {
+        printf("%c", data_start[i]);
+        i++;
+      }
+
+      printf("\n");
+
+    }
+
+    fmt_index++;
+  }
+
+}
 
 int
 main(int argc, char *argv[])
