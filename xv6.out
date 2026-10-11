@@ -1,0 +1,19 @@
+
+xv6 kernel is booting
+
+hart 2 starting
+hart 1 starting
+init: starting sh
+$ sandbox 32768 - echo "hello"
+"hello"
+$ sandbox 32768 - cat README
+cat: cannot open README
+$ sandbox 32768 - grep xv6 README
+grep: cannot open README
+$ sandbox 128 - grep xv6 README
+sandbox: exec grep failed
+$ sandbox 32896 - grep xv6 README
+sandbox: exec grep failed
+$ sandbox 128 - sh < exec.sh
+sandbox: exec sh failed
+$ qemu-system-riscv64: terminating on signal 15 from pid 13897 (make)

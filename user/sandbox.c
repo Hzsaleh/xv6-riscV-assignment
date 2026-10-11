@@ -1,58 +1,19 @@
-#include "kernel/param.h"
 #include "kernel/types.h"
-#include "kernel/stat.h"
-#include "kernel/syscall.h"
 #include "user/user.h"
 
-void
-usage(char *s)
-{
-  fprintf(2, "Usage: %s <mask> <path> <command>\n", s);
-  exit(1);
-}
+int main(int argc, char *argv[]) {
 
-// Sandbox a command by disallowing system calls in mask and
-// system calls that are using path
-int
-main(int argc, char *argv[])
-{
-  int i;
-  int n = 2;
-  int mask = 1;
-  char *nargv[MAXARG];
+    // printf("hello there");
+    interpose(atoi(argv[1]), argv[2]);
 
-  if (argc < 4) {
-    usage(argv[0]);
-  }
+    // printf("\n\nExec Arguments:\t");
+    // for (int i = 3; argv[i] != 0; i++) {
+    //     printf("%s ", argv[i]);
+    // }
+    // printf("\n\n");
 
-  if (argv[mask][0] < '0' || argv[mask][0] > '9') {
-    usage(argv[0]);
-  }
+    exec(argv[3], argv + 3);    
+    printf("sandbox: exec %s failed\n", argv[3]);
 
-  n += 1; // skip path
-
-  // strip off the first n arguments to sandbox
-  for (i = n; i < argc && i < MAXARG; i++) {
-    nargv[i - n] = argv[i];
-  }
-  nargv[argc - n] = 0;
-
-  int pid = fork();
-  if (pid < 0) {
-    printf("%s: exec fork failed\n", argv[0]);
-    exit(1);
-  }
-  if (pid == 0) {
-    if (interpose(atoi(argv[mask]), argv[mask + 1]) < 0) {
-      printf("%s: interpose failed", argv[0]);
-      exit(1);
-    }
-    exec(nargv[0], nargv);
-    printf("%s: exec %s failed\n", argv[0], nargv[0]);
-    exit(1);
-  } else {
-    wait(0);
-  }
-
-  return 0;
+    return -1;
 }

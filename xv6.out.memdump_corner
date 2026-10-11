@@ -1,0 +1,13 @@
+
+xv6 kernel is booting
+
+hart 2 starting
+hart 1 starting
+init: starting sh
+$ echo abcdefgh | memdump h
+$ echo abcdefgh | memdump c
+$ echo a | memdump i
+$ echo abc | memdump ii
+$ memdump a b c
+Usage: memdump [format]
+$ qemu-system-riscv64: terminating on signal 15 from pid 399549 (make)
