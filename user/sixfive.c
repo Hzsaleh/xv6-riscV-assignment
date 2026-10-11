@@ -4,6 +4,11 @@
 #define O_RDONLY 0
 
 int main(int argc, char *argv[]){
+    if(argc < 2){
+        fprintf(2, "usage: sixfive filename\n");
+        exit(1);
+    }
+
     int file = open(argv[1], O_RDONLY);
 
     if(file < 0){

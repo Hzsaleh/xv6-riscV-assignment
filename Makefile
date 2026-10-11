@@ -208,11 +208,6 @@ UPROGS=\
 	$U/_sandbox\
 
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> riscv
 ifeq ($(LAB),syscall)
 UPROGS += \
 	$U/_attack\
