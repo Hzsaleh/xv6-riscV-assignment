@@ -152,12 +152,12 @@ syscall(void)
       if(strncmp("-", p->interpose_allowed_path, MAXPATH)){
         if (num == SYS_open) {
           char path[MAXPATH];
-          argstr(0, path, MAXPATH);
+          // argstr(0, path, MAXPATH);
 
-          // if (argstr(0, path, MAXPATH) < 0) {
-          //   p->trapframe->a0 = -1;
-          //   return;
-          // }
+          if (argstr(0, path, MAXPATH) < 0) {
+            p->trapframe->a0 = -1;
+            return;
+          }
           
           // printk("p->interpose_allowed_path: %s\tpath: %s\n", p->interpose_allowed_path, path);
           

@@ -293,8 +293,8 @@ ifeq ($(LAB),syscall)
 endif
 
 
-fs.img: mkfs/mkfs README exec.sh time.txt answers-syscall.txt $(UEXTRA) $(UPROGS)
-	mkfs/mkfs fs.img README exec.sh time.txt answers-syscall.txt $(UEXTRA) $(UPROGS)
+fs.img: mkfs/mkfs README time.txt answers-syscall.txt $(UEXTRA) $(UPROGS)
+	mkfs/mkfs fs.img README time.txt answers-syscall.txt $(UEXTRA) $(UPROGS)
 
 newfs.img: 
 	-mv -f fs.img fs.img.bk
