@@ -14,7 +14,6 @@ main(int argc, char *argv[])
   }
   
   char *data = sbrk(DATASIZE);
-  char *temp = data;
   
   // avoid putting the secret near the very start of a page.
   unsigned long align = ((unsigned long) data) % 4096;
@@ -25,22 +24,8 @@ main(int argc, char *argv[])
   if(strlen(argv[1]) > 0)
   data += 32 + (unsigned int)(argv[1][0] & 0xff);
   
-  // printf("%lld\n", (unsigned long long)data);
-  
-
 #define MSG "Here it is: "
   strcpy(data, MSG);
   strcpy(data + strlen(MSG), argv[1]);
-
-  int offset = 0;
-  while(offset < DATASIZE){
-    // data++;
-    // printf("%lld\n", (unsigned long long)data);
-    if((temp[offset] >= 'a' && temp[offset] <= 'z') || (temp[offset] >= 'A' && temp[offset] <= 'Z') || temp[offset] == ':' || temp[offset] == ' '){
-      printf("%c ", (char)temp[offset]);
-    }
-    offset++;
-  }
-  printf("\n");
   exit(0);
 }

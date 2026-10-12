@@ -132,10 +132,3 @@ main(int argc, char *argv[])
   }
   exit(0);
 }
-
-void
-memdump(char *fmt, char *data, int len)
-{
-  // Your code here.  `data` holds `len` valid bytes.
-
-}

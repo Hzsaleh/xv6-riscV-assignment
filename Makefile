@@ -209,6 +209,7 @@ UPROGS=\
 	$U/_find\
 	$U/_sixfive\
 	$U/_sandbox\
+	$U/_secret\
 
 
 ifeq ($(LAB),syscall)
