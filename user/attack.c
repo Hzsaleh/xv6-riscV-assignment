@@ -3,47 +3,45 @@
 #include "user/user.h"
 #include "kernel/riscv.h"
 
-#define DATASIZE (9 * 4096)
+#define SIZE (32 * 4096)
+#define MSG "Here it is: "
 
 int
 main(int argc, char *argv[])
 {
-  // Your code here.
-  char *data = sbrk(DATASIZE);
-  unsigned long offset = 0;
-  char secret[256];
-  int i = 0;
-  char marker[] = "Here it is: ";
+  char *mem = sbrk(SIZE);
 
-  // unsigned long align = ((unsigned long) data) % 4096;
+  if (mem == (char *)-1) {
+    fprintf(2, "attack: allocation failed\n");
+    exit(1);
+  }
 
-  // printf("%d - %d\n", (int)align, offset);
-  // printf("attack: %ld", offset);
+  int len = strlen(MSG);
 
-  while(offset < DATASIZE){
-    if(data[offset] == 'H'){
-      int found = 1;
-      for(int j=0 ; j<strlen(marker) ; j++){
-        if(data[offset + j] != marker[j]){
-          found = 0;
+  for (int i = 0; i < SIZE - len; i++) {
+    if (memcmp(mem + i, MSG, len) == 0) {
+      char secret[256];
+      int j = 0;
+
+      while (i + len + j < SIZE && j < 255) {
+        char c = mem[i + len + j];
+
+        if (!((c >= 'a' && c <= 'z') ||
+              (c >= 'A' && c <= 'Z') ||
+              (c >= '0' && c <= '9')))
           break;
-        }
+
+        secret[j++] = c;
       }
 
-      if(found){
-        offset += strlen(marker);
+      secret[j] = 0;
 
-        while(data[offset] != '\0'){
-          secret[i++] = data[offset];
-          offset++;
-        }
-        secret[i] = '\0';
-        break;
+      if (j > 0) {
+        printf("%s\n", secret);
+        exit(0);
       }
     }
-    offset++;
   }
-  printf("%s\n", secret);
 
-  exit(0);
+  exit(1);
 }
