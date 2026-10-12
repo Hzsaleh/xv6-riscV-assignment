@@ -215,7 +215,9 @@ UPROGS=\
 ifeq ($(LAB),syscall)
 UPROGS += \
 	$U/_attack\
-	$U/_secret
+	$U/_secret\
+	$U/_sandbox\
+    $U/_sbtest
 endif
 
 ifeq ($(LAB),traps)
@@ -290,8 +292,9 @@ ifeq ($(LAB),syscall)
 	UEXTRA += user/exec.sh
 endif
 
-fs.img: mkfs/mkfs README exec.sh $(UEXTRA) $(UPROGS)
-	mkfs/mkfs fs.img README exec.sh $(UEXTRA) $(UPROGS)
+
+fs.img: mkfs/mkfs README exec.sh time.txt answers-syscall.txt $(UEXTRA) $(UPROGS)
+	mkfs/mkfs fs.img README exec.sh time.txt answers-syscall.txt $(UEXTRA) $(UPROGS)
 
 newfs.img: 
 	-mv -f fs.img fs.img.bk
