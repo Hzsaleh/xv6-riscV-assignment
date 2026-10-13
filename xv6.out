@@ -1,23 +1,18 @@
-nmeta 47 (boot, super, log blocks 31, inode blocks 13, bitmap blocks 1) blocks 1953 total 2000
-balloc: first 1098 blocks have been allocated
-balloc: write bitmap block at sector 46
-*** Now run 'gdb' in another window.
 
 xv6 kernel is booting
 
 hart 1 starting
 hart 2 starting
 init: starting sh
-$ sandbox 32768 - echo "hello"
-"hello"
-$ sandbox 32768 - cat README
-cat: cannot open README
-$ sandbox 32768 - grep xv6 README
-grep: cannot open README
-$ sandbox 128 - grep xv6 README
-sandbox failed!
-$ sandbox 32896 - grep xv6 README
-sandbox failed!
-$ sandbox 128 - sh < exec.sh
-open exec.sh failed
-$ qemu-system-riscv64: terminating on signal 15 from pid 406768 (make)
+$ mkdir d1
+$ echo > d1/pgVLWXrM
+$ mkdir d2
+$ mkdir d2/KlK7UZRZ
+$ find . pgVLWXrM
+./d1/pgVLWXrM
+$ find . xMctNw7Q
+$ find . KlK7UZRZ
+./d2/KlK7UZRZ
+$ echo DONE
+DONE
+$ qemu-system-riscv64: terminating on signal 15 from pid 123073 (make)
