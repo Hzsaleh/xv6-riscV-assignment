@@ -111,6 +111,39 @@ int
 sys_pgaccess(void)
 {
   // lab pgtbl: your code here.
+  struct proc *p;
+
+  p = myproc();
+
+  uint64 start_va, user_addr_mask;
+  int len;
+
+  argaddr(0, &start_va);
+  argint(1, &len); 
+  argaddr(2, &user_addr_mask); 
+
+  if (len < 0 || len > 256)
+    return -1;
+
+  char mask_buf[512] = {0};
+
+  for(int i=len-1 ; i>=0 ; i--){
+    uint64 va = start_va + i * PGSIZE;
+
+    pte_t *pte = walk(p->pagetable, va, 0);
+
+    if(pte == 0 || !(*pte & PTE_V))
+        return -1;
+
+    if((*pte & PTE_A)){
+      mask_buf[i / 8] |= (1L << (i % 8));
+      *pte = *pte & ~PTE_A;
+    }
+  }
+
+  if(copyout(p->pagetable, p->sz, user_addr_mask, mask_buf, (len + 7) / 8) < 0)
+    return -1;
+
   return 0;
 }
 #endif

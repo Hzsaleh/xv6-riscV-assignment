@@ -146,15 +146,110 @@ walkaddr(pagetable_t pagetable, uint64 va)
   return pa;
 }
 
+void print_pagetable(pagetable_t pagetable, char* level){
+  // there are 2^9 = 512 PTEs in a page table.
+  for (int i = 0; i < 512; i++) {
+    pte_t pte = pagetable[i];
+    
+    int length = strlen(level);
+    char str[length + 4];
+
+    memset(str, ' ', length + 2);
+
+    for (int i = 0; i < length; i++)
+        str[i] = level[i];
+
+    str[length] = ' ';
+    str[length + 1] = '.';
+    str[length + 2] = '.';
+    str[length + 3] = '\0';
+
+    if ((pte & PTE_V) && (pte & (PTE_R | PTE_W | PTE_X)) == 0) {
+      // this PTE points to a lower-level page table.
+      printk("%s0x%lx pte 0x%lx pa 0x%lx\n", level, (uint64)i, pte, PTE2PA(pte));
+
+      uint64 child = PTE2PA(pte);
+      print_pagetable((pagetable_t)child, str);
+      // pagetable[i] = 0;
+    } else if (pte & PTE_V) {
+      // backtrace();
+      char perm[4] = "   ";
+      if(pte & PTE_R) perm[0] = 'R';
+      if(pte & PTE_X) perm[1] = 'X';
+      if(pte & PTE_W) perm[2] = 'W';
+      
+      printk("%s0x%lx pte 0x%lx pa 0x%lx %s\n", level, (uint64)i, pte, PTE2PA(pte),
+         perm);
+    }
+  }
+  // kfree((void *)pagetable);
+}
 
 #if defined(LAB_PGTBL) || defined(SOL_MMAP) || defined(SOL_COW)
 void
 vmprint(pagetable_t pagetable)
 {
   // your code here
+  print_pagetable(pagetable, "..");
 }
 #endif
 
+// Return the address of the PTE at level 1 for virtual address va.
+pte_t *
+walk_level1(pagetable_t pagetable, uint64 va, int alloc)
+{
+  if(va >= MAXVA)
+    panic("walk_level1");
+
+  for(int level = 2; level > 1; level--) {
+    pte_t *pte = &pagetable[PX(level, va)];
+    if(*pte & PTE_V) {
+      // Directly cast the physical address to pagetable_t without P2V
+      pagetable = (pagetable_t)PTE2PA(*pte);
+    } else {
+      if(!alloc || (pagetable = (pagetable_t)kalloc()) == 0)
+        return 0;
+      memset(pagetable, 0, PGSIZE);
+      *pte = PA2PTE(pagetable) | PTE_V;
+    }
+  }
+  return &pagetable[PX(1, va)];
+}
+
+int
+kvmmappages(pagetable_t kpgtbl, uint64 va, uint64 pa, uint64 sz, int perm)
+{
+  uint64 a, last;
+  uint64 ppa;
+
+  if(va % PGSIZE != 0)
+    panic("kvmmappages: va not aligned");
+  if(sz == 0)
+    panic("kvmmappages: sz");
+
+  a = va;
+  last = va + sz - 1;
+  ppa = pa;
+  while(a <= last){
+    // Check if we can use a 2MB superpage (0x200000 bytes)
+    if((last - a + 1) >= 0x200000 && (a % 0x200000 == 0) && (ppa % 0x200000 == 0)){
+      pte_t *pte = walk_level1(kpgtbl, a, 1);
+      if(pte == 0)
+        return -1;
+      if(*pte & PTE_V)
+        panic("kvmmappages: remap superpage");
+      *pte = PA2PTE(ppa) | perm | PTE_V;
+      a += 0x200000;
+      ppa += 0x200000;
+    } else {
+      if(mappages(kpgtbl, a, PGSIZE, ppa, perm) != 0)
+        return -1;
+      a += PGSIZE;
+      ppa += PGSIZE;
+    }
+  }
+  return 0;
+}
 
 // add a mapping to the kernel page table.
 // only used when booting.
@@ -162,7 +257,7 @@ vmprint(pagetable_t pagetable)
 void
 kvmmap(pagetable_t kpgtbl, uint64 va, uint64 pa, uint64 sz, int perm)
 {
-  if (mappages(kpgtbl, va, sz, pa, perm) != 0)
+  if(kvmmappages(kpgtbl, va, pa, sz, perm) != 0)
     panic("kvmmap");
 }
 
@@ -536,5 +631,3 @@ ismapped(pagetable_t pagetable, uint64 va)
   }
   return 0;
 }
-
-
